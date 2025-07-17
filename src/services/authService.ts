@@ -11,13 +11,13 @@ interface ISignInDTO {
   password: string;
 }
 
-interface ISignInResponse {
+interface IResponse {
   accessToken: string;
 }
 
 export class AuthService {
   static async signUp({ name, email, password }: ISignUpDTO) {
-    const { data } = await httpClient.post("/sign-up", {
+    const { data } = await httpClient.post<IResponse>("/auth/sign-up", {
       name,
       email,
       password,
@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   static async signIn({ email, password }: ISignInDTO) {
-    const { data } = await httpClient.post<ISignInResponse>("/sign-in", {
+    const { data } = await httpClient.post<IResponse>("/auth/sign-in", {
       email,
       password,
     });
