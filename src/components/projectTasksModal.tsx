@@ -38,7 +38,7 @@ export function ProjectTasksModal({
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <DialogBackdrop className="fixed inset-0 bg-black/30" />
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-        <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-[#232836] p-6 text-left align-middle shadow-xl transition-all">
+        <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-base-2 p-6 text-left align-middle shadow-xl transition-all">
           <DialogTitle as="h3" className="text-lg font-bold text-white mb-4">
             {projectName}
           </DialogTitle>

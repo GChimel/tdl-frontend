@@ -1,10 +1,15 @@
+import { useDeleteProject } from "@/hooks/useProject";
 import { cn } from "@/lib/cn";
+import { PencilSimple, Trash } from "phosphor-react";
+import toast from "react-hot-toast";
 
 interface ProjectCardProps {
   name: string;
+  projectId: string;
   completedTasks: number;
   totalTasks: number;
   color?: "blue" | "red" | "green" | "yellow" | "purple";
+  onEdit?: (projectId: string) => void;
 }
 
 const colorMap: Record<string, string> = {
@@ -17,10 +22,24 @@ const colorMap: Record<string, string> = {
 
 export function ProjectCard({
   name,
+  projectId,
   completedTasks,
   totalTasks,
   color = "blue",
+  onEdit,
 }: ProjectCardProps) {
+  const { mutateAsync: deleteProject, isPending } = useDeleteProject();
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await deleteProject(projectId);
+      toast.success("Projeto excluído com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao excluir projeto");
+    }
+  };
+
   const percent =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   const stroke = 6;
@@ -33,21 +52,42 @@ export function ProjectCard({
   return (
     <div
       className={cn(
-        "bg-[#232836] h-52 w-52 rounded-2xl p-4 flex flex-col shadow-lg border-t-6"
+        "bg-base-2 h-52 w-52 rounded-2xl p-4 flex flex-col shadow-lg border-t-6"
       )}
       style={{ borderTopColor: progressColor }}
     >
       <div>
-        <h1 className="font-bold text-center tracking-[-1px] truncate text-lg mb-2">
+        <h1 className="font-bold text-center tracking-[-1px] truncate text-lg mb-1">
           {name}
         </h1>
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between mt-2">
           <span className="text-sm text-gray-300">Tarefas: {totalTasks}</span>
           <span className="text-sm text-gray-300">
             Completas: {completedTasks}
           </span>
         </div>
+        <div className="w-full flex mt-1 justify-center">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.(projectId);
+            }}
+            className="text-primary focus:outline-1 hover:bg-primary/10 rounded-full p-2 transition-transform hover:scale-110 cursor-pointer"
+            title="Editar"
+          >
+            <PencilSimple size={20} weight="fill" />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="text-red-500 focus:outline-1 hover:bg-red-500/10 rounded-full p-2 transition-transform hover:scale-110 cursor-pointer"
+            title="Excluir"
+            disabled={isPending}
+          >
+            <Trash size={20} weight="fill" />
+          </button>
+        </div>
       </div>
+
       <div className="flex flex-1 items-center justify-center relative">
         <svg height={radius * 2} width={radius * 2} className="block">
           <circle

@@ -13,6 +13,7 @@
 
   --color-primary: #154ed7;
   --color-base-1: #303642;
+  --color-base-2: #232836;
 }
 
 @media (prefers-color-scheme: dark) {

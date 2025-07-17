@@ -1,6 +1,7 @@
 import { AuthService } from "@/services/authService";
 import { jwtDecode } from "jwt-decode";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface JwtPayload {
   sub: string; // user id (uuid)
@@ -15,36 +16,47 @@ interface AuthState {
   signOut: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  signedIn: false,
-  userId: null,
-  token: null,
-
-  signIn: async (email, password) => {
-    const { accessToken } = await AuthService.signIn({ email, password });
-    const decoded = jwtDecode<JwtPayload>(accessToken);
-    set({
-      signedIn: true,
-      userId: decoded.sub,
-      token: accessToken,
-    });
-  },
-
-  signUp: async (name, email, password) => {
-    const { accessToken } = await AuthService.signUp({ name, email, password });
-    const decoded = jwtDecode<JwtPayload>(accessToken);
-    set({
-      signedIn: true,
-      userId: decoded.sub,
-      token: accessToken,
-    });
-  },
-
-  signOut: () => {
-    set({
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
       signedIn: false,
       userId: null,
       token: null,
-    });
-  },
-}));
+
+      signIn: async (email, password) => {
+        const { accessToken } = await AuthService.signIn({ email, password });
+        const decoded = jwtDecode<JwtPayload>(accessToken);
+        set({
+          signedIn: true,
+          userId: decoded.sub,
+          token: accessToken,
+        });
+      },
+
+      signUp: async (name, email, password) => {
+        const { accessToken } = await AuthService.signUp({
+          name,
+          email,
+          password,
+        });
+        const decoded = jwtDecode<JwtPayload>(accessToken);
+        set({
+          signedIn: true,
+          userId: decoded.sub,
+          token: accessToken,
+        });
+      },
+
+      signOut: () => {
+        set({
+          signedIn: false,
+          userId: null,
+          token: null,
+        });
+      },
+    }),
+    {
+      name: "auth-storage",
+    }
+  )
+);

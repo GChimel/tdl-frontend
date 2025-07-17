@@ -3,21 +3,15 @@ import { InputHTMLAttributes, forwardRef } from "react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
-  label?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, error, label, ...props }, ref) => {
+  ({ className, error, ...props }, ref) => {
     const baseStyles =
       "w-full px-3 py-2 rounded bg-[#181C23] text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary";
 
     return (
       <div className="w-full">
-        {label && (
-          <label htmlFor={props.id} className="sr-only">
-            {label}
-          </label>
-        )}
         <input
           className={cn(
             baseStyles,

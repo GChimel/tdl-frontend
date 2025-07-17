@@ -3,38 +3,37 @@ import { ProjectCard } from "@/components/projectCard";
 import { ProjectTasksModal } from "@/components/projectTasksModal";
 import { ProtectedRoute } from "@/components/protectedRoute";
 import { Task } from "@/components/task";
-import { CaretLeft, CaretRight } from "phosphor-react";
+import { CreateProject } from "@/forms/project/create";
+import { EditProject } from "@/forms/project/edit";
+import { useAuthStore } from "@/hooks/useAuthStore";
+import type { Projects } from "@/hooks/useProject";
+import { useProjects } from "@/hooks/useProject";
+import { useTaks } from "@/hooks/useTask";
+import { CaretLeft, CaretRight, SignOut } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
-
-const mockProjects = [
-  {
-    id: "1",
-    name: "Projeto Alpha",
-    description:
-      "Projeto para inicialização do repositório e configuração de CI/CD.",
-    tasks: [
-      { id: "a1", title: "Setup repo", completed: true },
-      { id: "a2", title: "Config CI", completed: false },
-      { id: "a3", title: "Primeira feature", completed: false },
-      { id: "a4", title: "Deploy", completed: false },
-      { id: "a5", title: "Documentação", completed: true },
-    ],
-  },
-];
-
-const mockSoloTasks = [
-  {
-    id: "s1",
-    title: "Tarefa avulsa 1",
-    description: "Descrição da tarefa avulsa 1",
-    completed: false,
-  },
-];
+import toast from "react-hot-toast";
 
 export default function Home() {
-  const [selectedProject, setSelectedProject] = useState<
-    null | (typeof mockProjects)[0]
-  >(null);
+  const signOut = useAuthStore((s) => s.signOut);
+  const [showCreateProject, setShowCreateProject] = useState(false);
+  const [showCreateTask, setShowCreateTask] = useState(false);
+  const [editProjectId, setEditProjectId] = useState<string | null>(null);
+
+  const { data: projectData, error: projectError } = useProjects();
+  const { data: taksData, error: taskError } = useTaks();
+  const soloTasks = taksData?.filter((t) => !t.project) ?? [];
+
+  useEffect(() => {
+    if (taskError) {
+      toast.error("Erro ao buscar as tarefas");
+    }
+
+    if (projectError) {
+      toast.error("Erro ao buscar os projetos");
+    }
+  }, [taskError, projectError]);
+
+  const [selectedProject, setSelectedProject] = useState<null | Projects>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -75,9 +74,55 @@ export default function Home() {
     carouselRef.current.scrollWidth >
       carouselRef.current.clientWidth + scrollLeft + 100;
 
+  const handleLogout = async () => {
+    signOut();
+    toast.success("Deslogado com sucesso!");
+  };
+
   return (
     <ProtectedRoute>
-      <div className="min-h-screen text-white flex flex-col items-center p-8">
+      {/* Header */}
+      <header className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 bg-base-2 shadow-md z-30">
+        <span className="font-extrabold text-xl tracking-tight text-white select-none">
+          Loopt <span className="text-primary">| TODO</span>
+        </span>
+        <div className="flex gap-3">
+          <button
+            className="bg-gray-700 cursor-pointer text-white px-4 py-2 rounded font-semibold hover:bg-red-600 transition flex items-center justify-center"
+            onClick={handleLogout}
+            title="Deslogar"
+            aria-label="Deslogar"
+          >
+            <SignOut size={22} weight="bold" />
+          </button>
+        </div>
+      </header>
+      <div className="h-20" />
+      {showCreateProject && (
+        <CreateProject setCloseModal={setShowCreateProject} />
+      )}
+      {showCreateTask && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-base-2 p-8 rounded-xl shadow-lg flex flex-col items-center">
+            <span className="text-white mb-4">
+              Modal de criar tarefa (placeholder)
+            </span>
+            <button
+              className="mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-blue-700"
+              onClick={() => setShowCreateTask(false)}
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+      {editProjectId && (
+        <EditProject
+          setCloseModal={() => setEditProjectId(null)}
+          projectId={editProjectId}
+        />
+      )}
+      <div className="flex-1 w-full text-white flex flex-col items-center p-8">
         {/* Projects */}
         <section className="w-full flex flex-col items-center">
           <h1 className="text-2xl font-extrabold mb-6 text-center tracking-tight">
@@ -121,34 +166,62 @@ export default function Home() {
               className="flex flex-nowrap overflow-x-auto px-4 pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent select-none"
               onScroll={handleScroll}
             >
-              {mockProjects.map((project, idx) => {
-                const colors: (
-                  | "blue"
-                  | "red"
-                  | "green"
-                  | "yellow"
-                  | "purple"
-                )[] = ["blue", "red", "green", "yellow", "purple"];
-                return (
-                  <div
-                    key={project.id}
-                    onClick={() => {
-                      setSelectedProject(project);
-                      setIsModalOpen(true);
-                    }}
-                    className="cursor-pointer flex-shrink-0 mr-10"
-                  >
-                    <ProjectCard
-                      name={project.name}
-                      completedTasks={
-                        project.tasks.filter((t) => t.completed).length
-                      }
-                      totalTasks={project.tasks.length}
-                      color={colors[idx % colors.length]}
-                    />
+              {/* Create project card */}
+              <div
+                onClick={() => setShowCreateProject(true)}
+                className="cursor-pointer flex flex-col h-52 w-52 min-h-52 min-w-52 items-center justify-center bg-base-2 border-2 border-dashed border-primary rounded-2xl mr-10 hover:bg-[#26304a] transition group"
+                title="Criar novo projeto"
+              >
+                <div className="flex flex-col items-center justify-center h-full w-full p-6">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 mb-4">
+                    <span className="text-primary text-4xl font-bold">+</span>
                   </div>
-                );
-              })}
+                  <span className="text-primary font-bold text-lg group-hover:underline">
+                    Novo Projeto
+                  </span>
+                </div>
+              </div>
+              {!projectData ? (
+                <div className="text-gray-400 text-center w-full">
+                  Carregando projetos...
+                </div>
+              ) : projectData.length === 0 ? (
+                <div className="text-gray-400 text-center w-full">
+                  Nenhum projeto encontrado.
+                </div>
+              ) : (
+                projectData.map((project, idx) => {
+                  const colors: (
+                    | "blue"
+                    | "red"
+                    | "green"
+                    | "yellow"
+                    | "purple"
+                  )[] = ["blue", "red", "green", "yellow", "purple"];
+                  return (
+                    <div
+                      key={project.id}
+                      onClick={() => {
+                        setSelectedProject(project);
+                        setIsModalOpen(true);
+                      }}
+                      className="cursor-pointer flex-shrink-0 mr-10"
+                    >
+                      <ProjectCard
+                        name={project.name}
+                        projectId={project.id}
+                        completedTasks={
+                          project.tasks.filter((t) => t.status === "completed")
+                            .length
+                        }
+                        totalTasks={project.tasks.length}
+                        color={colors[idx % colors.length]}
+                        onEdit={(id) => setEditProjectId(id)}
+                      />
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </section>
@@ -157,38 +230,57 @@ export default function Home() {
           onClose={() => setIsModalOpen(false)}
           projectName={selectedProject?.name || ""}
           projectDescription={selectedProject?.description || ""}
-          tasks={selectedProject?.tasks || []}
+          tasks={(selectedProject?.tasks || []).map((task) => ({
+            ...task,
+            completed: task.status === "completed",
+          }))}
           onEdit={handleEditTask}
           onToggleComplete={handleToggleComplete}
           onDelete={handleDeleteTask}
         />
         {/* Tasks */}
-        <section className="mt-12 w-full flex flex-col items-center">
+        <section className="mt-8 w-full flex flex-col items-center">
           <h1 className="text-2xl font-extrabold mb-6 text-center tracking-tight">
             Tarefas avulsas
           </h1>
           <div className="w-full max-w-lg">
-            <ul className="space-y-3 max-h-[32rem] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent mx-auto">
-              {mockSoloTasks.length === 0 && (
+            <ul className="space-y-3 max-h-[30rem] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent mx-auto">
+              {/* Create task card*/}
+              <li>
+                <div
+                  onClick={() => setShowCreateTask(true)}
+                  className="cursor-pointer flex items-center bg-base-2 border-2 border-dashed border-primary rounded-xl p-3 mb-2 shadow gap-3 hover:bg-[#26304a] transition group min-h-[64px]"
+                  title="Criar nova tarefa avulsa"
+                >
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20">
+                    <span className="text-primary text-2xl font-bold">+</span>
+                  </div>
+                  <span className="text-primary font-bold text-base group-hover:underline ml-2">
+                    Nova Tarefa
+                  </span>
+                </div>
+              </li>
+              {!soloTasks || soloTasks.length === 0 ? (
                 <li className="text-gray-400 text-center">
                   Adicione uma tarefa!
                 </li>
+              ) : (
+                soloTasks.map((task) => (
+                  <li key={task.id}>
+                    <Task
+                      onModal={false}
+                      name={task.title}
+                      description={task.description}
+                      completed={task.status === "completed" ? true : false}
+                      onEdit={() => handleEditSoloTask(task.id)}
+                      onToggleComplete={() =>
+                        handleToggleCompleteSoloTask(task.id)
+                      }
+                      onDelete={() => handleDeleteSoloTask(task.id)}
+                    />
+                  </li>
+                ))
               )}
-              {mockSoloTasks.map((task) => (
-                <li key={task.id}>
-                  <Task
-                    onModal={false}
-                    name={task.title}
-                    description={task.description}
-                    completed={task.completed}
-                    onEdit={() => handleEditSoloTask(task.id)}
-                    onToggleComplete={() =>
-                      handleToggleCompleteSoloTask(task.id)
-                    }
-                    onDelete={() => handleDeleteSoloTask(task.id)}
-                  />
-                </li>
-              ))}
             </ul>
           </div>
         </section>

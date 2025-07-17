@@ -25,13 +25,13 @@ export function Task({
     <div
       className={cn(
         "flex items-center bg-[#181C23] rounded-xl p-3 mb-2 shadow gap-3",
-        onModal ? "bg-[#181C23]" : "bg-[#232836] "
+        onModal ? "bg-[#181C23]" : "bg-base-2 "
       )}
     >
       <Checkbox
         checked={completed}
         onChange={onToggleComplete}
-        className="group cursor-pointer flex items-center justify-center mr-2 w-6 h-6 rounded border-2 border-gray-500 bg-[#232836] data-checked:border-primary data-checked:bg-primary transition-colors focus:outline-1"
+        className="group cursor-pointer flex items-center justify-center mr-2 w-6 h-6 rounded border-2 border-gray-500 bg-base-2 data-checked:border-primary data-checked:bg-primary transition-colors focus:outline-1"
       >
         {completed && <Check size={18} weight="bold" className="text-white" />}
       </Checkbox>

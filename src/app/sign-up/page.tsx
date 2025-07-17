@@ -53,7 +53,7 @@ export default function SignUp() {
     <div className="min-h-screen flex items-center justify-center bg-[#303642]">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="bg-[#232836] p-8 rounded-xl shadow-lg w-full max-w-sm flex flex-col gap-2 border-t-6 border-primary"
+        className="bg-base-2 p-8 rounded-xl shadow-lg w-full max-w-sm flex flex-col gap-2 border-t-6 border-primary"
       >
         <h1 className="text-2xl font-bold text-center text-white mb-2">
           Crie sua conta!
@@ -64,7 +64,6 @@ export default function SignUp() {
             type="text"
             {...register("name")}
             error={errors.name?.message}
-            label="Nome"
             placeholder="Digite seu nome"
           />
         </div>
@@ -74,7 +73,6 @@ export default function SignUp() {
             type="email"
             {...register("email")}
             error={errors.email?.message}
-            label="E-mail"
             placeholder="Digite seu e-mail"
           />
         </div>
@@ -84,7 +82,6 @@ export default function SignUp() {
             type="password"
             {...register("password")}
             error={errors.password?.message}
-            label="Senha"
             placeholder="Digite sua senha"
           />
         </div>
