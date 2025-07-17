@@ -28,7 +28,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <button className={styles} ref={ref} {...props}>
+      <button
+        className={styles}
+        ref={ref}
+        disabled={isLoading || props.disabled}
+        {...props}
+      >
         {isLoading ? (
           <div className="mr-2 h-4 w-4 animate-spin rounded-md border-2 border-current border-t-transparent" />
         ) : null}
