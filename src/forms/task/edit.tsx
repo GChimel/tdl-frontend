@@ -51,7 +51,7 @@ export function EditTask({ setCloseModal, taskId }: Props) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-[999]"
       onClick={(e) => e.stopPropagation()}
     >
       <form
