@@ -10,29 +10,29 @@ interface TaskType {
   id: string;
   title: string;
   description?: string;
-  completed: boolean;
+  status: string;
 }
 
 interface ProjectTasksModalProps {
   isOpen: boolean;
   onClose: () => void;
+  projectId?: string | undefined;
   projectName: string;
   projectDescription?: string;
   tasks: TaskType[];
   onEdit: (taskId: string) => void;
-  onToggleComplete: (taskId: string) => void;
-  onDelete: (taskId: string) => void;
+  onToggleComplete: (taskId: string, status: string) => void;
 }
 
 export function ProjectTasksModal({
   isOpen,
   onClose,
+  projectId,
   projectName,
   projectDescription,
   tasks,
   onEdit,
   onToggleComplete,
-  onDelete,
 }: ProjectTasksModalProps) {
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
@@ -54,13 +54,18 @@ export function ProjectTasksModal({
             {tasks.map((task) => (
               <li key={task.id}>
                 <Task
+                  id={task.id}
+                  projectId={projectId || undefined}
                   onModal
                   name={task.title}
                   description={task.description || ""}
-                  completed={task.completed}
-                  onEdit={() => onEdit(task.id)}
-                  onToggleComplete={() => onToggleComplete(task.id)}
-                  onDelete={() => onDelete(task.id)}
+                  completed={task.status === "completed" ? true : false}
+                  onEdit={() => {
+                    onEdit(task.id);
+                  }}
+                  onToggleComplete={() =>
+                    onToggleComplete(task.id, task.status)
+                  }
                 />
               </li>
             ))}

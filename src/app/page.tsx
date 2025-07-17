@@ -5,10 +5,12 @@ import { ProtectedRoute } from "@/components/protectedRoute";
 import { Task } from "@/components/task";
 import { CreateProject } from "@/forms/project/create";
 import { EditProject } from "@/forms/project/edit";
+import { CreateTask } from "@/forms/task/create";
+import { EditTask } from "@/forms/task/edit";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import type { Projects } from "@/hooks/useProject";
 import { useProjects } from "@/hooks/useProject";
-import { useTaks } from "@/hooks/useTask";
+import { useTaks, useUpdateTask } from "@/hooks/useTask";
 import { CaretLeft, CaretRight, SignOut } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -18,9 +20,11 @@ export default function Home() {
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [editProjectId, setEditProjectId] = useState<string | null>(null);
+  const [editTaskId, setEditTaskId] = useState<string | null>(null);
 
   const { data: projectData, error: projectError } = useProjects();
   const { data: taksData, error: taskError } = useTaks();
+  const { mutateAsync } = useUpdateTask();
   const soloTasks = taksData?.filter((t) => !t.project) ?? [];
 
   useEffect(() => {
@@ -44,17 +48,14 @@ export default function Home() {
     }
   };
 
-  const handleEditTask = (taskId: string) => alert(`Edit task ${taskId}`);
-  const handleToggleComplete = (taskId: string) =>
-    alert(`Toggle complete ${taskId}`);
-  const handleDeleteTask = (taskId: string) => alert(`Delete task ${taskId}`);
-
-  const handleEditSoloTask = (taskId: string) =>
-    alert(`Edit solo task ${taskId}`);
-  const handleToggleCompleteSoloTask = (taskId: string) =>
-    alert(`Toggle complete solo task ${taskId}`);
-  const handleDeleteSoloTask = (taskId: string) =>
-    alert(`Delete solo task ${taskId}`);
+  const handleToggleTask = async (taskId: string, status: string) => {
+    await mutateAsync({
+      id: taskId,
+      data: {
+        status: status === "completed" ? "pending" : "completed",
+      },
+    });
+  };
 
   const handleScroll = () => {
     if (carouselRef.current) {
@@ -101,25 +102,17 @@ export default function Home() {
       {showCreateProject && (
         <CreateProject setCloseModal={setShowCreateProject} />
       )}
-      {showCreateTask && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-base-2 p-8 rounded-xl shadow-lg flex flex-col items-center">
-            <span className="text-white mb-4">
-              Modal de criar tarefa (placeholder)
-            </span>
-            <button
-              className="mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-blue-700"
-              onClick={() => setShowCreateTask(false)}
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
+      {showCreateTask && <CreateTask setCloseModal={setShowCreateTask} />}
       {editProjectId && (
         <EditProject
           setCloseModal={() => setEditProjectId(null)}
           projectId={editProjectId}
+        />
+      )}
+      {editTaskId && (
+        <EditTask
+          setCloseModal={() => setEditTaskId(null)}
+          taskId={editTaskId}
         />
       )}
       <div className="flex-1 w-full text-white flex flex-col items-center p-8">
@@ -234,9 +227,8 @@ export default function Home() {
             ...task,
             completed: task.status === "completed",
           }))}
-          onEdit={handleEditTask}
-          onToggleComplete={handleToggleComplete}
-          onDelete={handleDeleteTask}
+          onEdit={setEditTaskId}
+          onToggleComplete={handleToggleTask}
         />
         {/* Tasks */}
         <section className="mt-8 w-full flex flex-col items-center">
@@ -268,15 +260,16 @@ export default function Home() {
                 soloTasks.map((task) => (
                   <li key={task.id}>
                     <Task
+                      id={task.id}
+                      projectId=""
                       onModal={false}
                       name={task.title}
                       description={task.description}
                       completed={task.status === "completed" ? true : false}
-                      onEdit={() => handleEditSoloTask(task.id)}
+                      onEdit={() => setEditTaskId(task.id)}
                       onToggleComplete={() =>
-                        handleToggleCompleteSoloTask(task.id)
+                        handleToggleTask(task.id, task.status)
                       }
-                      onDelete={() => handleDeleteSoloTask(task.id)}
                     />
                   </li>
                 ))

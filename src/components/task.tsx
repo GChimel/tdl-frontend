@@ -1,26 +1,42 @@
+import { useDeleteTask } from "@/hooks/useTask";
 import { cn } from "@/lib/cn";
 import { Checkbox } from "@headlessui/react";
 import { Check, PencilSimple, Trash } from "phosphor-react";
+import toast from "react-hot-toast";
 
 interface TaskProps {
+  id: string;
   name: string;
+  projectId: string | undefined;
   description?: string;
   completed: boolean;
   onModal: boolean;
   onEdit: () => void;
   onToggleComplete: () => void;
-  onDelete: () => void;
 }
 
 export function Task({
+  id,
   name,
+  projectId,
   description,
   completed,
   onModal,
   onEdit,
   onToggleComplete,
-  onDelete,
 }: TaskProps) {
+  const { mutateAsync: deleteTask, isPending } = useDeleteTask();
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await deleteTask({ id, projectId });
+      toast.success("Tarefa excluída com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao excluir tarefa");
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -66,9 +82,10 @@ export function Task({
           <PencilSimple size={20} weight="fill" />
         </button>
         <button
-          onClick={onDelete}
+          onClick={handleDelete}
           className="text-red-500 focus:outline-1 hover:bg-red-500/10 rounded-full p-2 transition-transform hover:scale-110 cursor-pointer"
           title="Excluir"
+          disabled={isPending}
         >
           <Trash size={20} weight="fill" />
         </button>
