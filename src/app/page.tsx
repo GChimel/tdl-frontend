@@ -150,36 +150,53 @@ export default function Home() {
               )}
 
               {/* Cards */}
-              <div
-                ref={carouselRef}
-                className="flex flex-nowrap overflow-x-auto px-4 pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent select-none"
-                onScroll={handleScroll}
-              >
-                {/* Create project card */}
-                <div
-                  onClick={() => setShowCreateProject(true)}
-                  className="cursor-pointer flex flex-col h-52 w-52 min-h-52 min-w-52 items-center justify-center bg-base-2 border-2 border-dashed border-primary rounded-2xl mr-10 hover:bg-[#26304a] transition group"
-                  title="Criar novo projeto"
-                >
-                  <div className="flex flex-col items-center justify-center h-full w-full p-6">
-                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 mb-4">
-                      <span className="text-primary text-4xl font-bold">+</span>
+              {!projectData ? (
+                <div className="text-gray-400 text-center w-full">
+                  Carregando projetos...
+                </div>
+              ) : projectData.length === 0 ? (
+                <div className="flex items-center  justify-center w-full">
+                  <div
+                    onClick={() => setShowCreateProject(true)}
+                    className="cursor-pointer flex flex-col h-52 w-52 min-h-52 min-w-52 items-center justify-center bg-base-2 border-2 border-dashed border-primary rounded-2xl  hover:bg-[#26304a] transition group"
+                    title="Criar novo projeto"
+                  >
+                    <div className="flex flex-col items-center justify-center h-full w-full p-6">
+                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 mb-4">
+                        <span className="text-primary text-4xl font-bold">
+                          +
+                        </span>
+                      </div>
+                      <span className="text-primary font-bold text-lg group-hover:underline">
+                        Novo Projeto
+                      </span>
                     </div>
-                    <span className="text-primary font-bold text-lg group-hover:underline">
-                      Novo Projeto
-                    </span>
                   </div>
                 </div>
-                {!projectData ? (
-                  <div className="text-gray-400 text-center w-full">
-                    Carregando projetos...
+              ) : (
+                <div
+                  ref={carouselRef}
+                  className="flex flex-nowrap  overflow-x-auto px-4 pb-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent select-none"
+                  onScroll={handleScroll}
+                >
+                  <div
+                    onClick={() => setShowCreateProject(true)}
+                    className="cursor-pointer flex flex-col h-52 w-52 min-h-52 min-w-52 items-center justify-center bg-base-2 border-2 border-dashed border-primary rounded-2xl mr-10 hover:bg-[#26304a] transition group"
+                    title="Criar novo projeto"
+                  >
+                    <div className="flex flex-col items-center justify-center h-full w-full p-6">
+                      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 mb-4">
+                        <span className="text-primary text-4xl font-bold">
+                          +
+                        </span>
+                      </div>
+                      <span className="text-primary font-bold text-lg group-hover:underline">
+                        Novo Projeto
+                      </span>
+                    </div>
                   </div>
-                ) : projectData.length === 0 ? (
-                  <div className="text-gray-400 text-center w-full">
-                    Nenhum projeto encontrado.
-                  </div>
-                ) : (
-                  projectData.map((project, idx) => {
+
+                  {projectData.map((project, idx) => {
                     const colors: (
                       | "blue"
                       | "red"
@@ -210,9 +227,9 @@ export default function Home() {
                         />
                       </div>
                     );
-                  })
-                )}
-              </div>
+                  })}
+                </div>
+              )}
             </div>
           </section>
           {selectedProject && (
@@ -247,9 +264,7 @@ export default function Home() {
                   </div>
                 </li>
                 {!soloTasks || soloTasks.length === 0 ? (
-                  <li className="text-gray-400 text-center">
-                    Adicione uma tarefa!
-                  </li>
+                  <></>
                 ) : (
                   soloTasks.map((task) => (
                     <li key={task.id}>
