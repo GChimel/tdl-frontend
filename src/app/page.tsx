@@ -86,7 +86,7 @@ export default function Home() {
         {/* Header */}
         <header className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 bg-base-2 shadow-md z-30">
           <span className="font-extrabold text-xl tracking-tight text-white select-none">
-            Loopt <span className="text-primary">| TODO</span>
+            Tdl <span className="text-primary">| TODO</span>
           </span>
           <div className="flex gap-3">
             <button

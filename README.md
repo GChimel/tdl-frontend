@@ -3,8 +3,8 @@
 ## 1. Clone o repositório
 
 ```bash
-git clone https://github.com/GChimel/loopt-front
-cd loopt-front
+git clone https://github.com/GChimel/tdl-frontend
+cd tdl-frontend
 ```
 
 ## 2. Configure o Ambiente

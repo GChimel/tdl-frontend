@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ToDo | Loopt",
+  title: "ToDo | Tdl",
   description: "ToDo List",
 };
 
